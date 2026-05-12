@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}- About{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 720px;">
+
+    <!-- HERO -->
+    <div style="text-align: center; padding: 48px 20px 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; margin-bottom: 28px; color: white;">
+        <h1 style="font-size: 40px; font-weight: 900; color: white; margin-bottom: 12px;">
+            Mind<span style="color: #ffd700;">Budget</span>
+        </h1>
+        <p style="font-size: 17px; opacity: 0.9; max-width: 480px; margin: 0 auto; line-height: 1.7;">
+            A personal companion for mental wellness and financial mindfulness — built specifically for Nigerian university students.
+        </p>
+    </div>
+
+    <!-- WHAT IS IT -->
+    <div class="card">
+        <h2>What is MindBudget?</h2>
+        <p style="font-size: 15px; line-height: 1.8;" class="muted-text">
+            MindBudget is a student wellness app that recognises something most apps ignore —
+            that how you feel and how you spend your money are deeply connected.
+            A student who runs out of money in the second week of the month is not just broke,
+            they are anxious, distracted, and often too ashamed to ask for help.
+        </p>
+        <p style="font-size: 15px; line-height: 1.8; margin-top: 14px;" class="muted-text">
+            MindBudget gives you one place to take care of both — your mind and your money.
+        </p>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="card">
+        <h2>What Can You Do?</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 8px;">
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">😊</div>
+                <div class="feature-title">Mood Check-in</div>
+                <div class="feature-desc">Log how you feel daily and get a personalised affirmation in response</div>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">📓</div>
+                <div class="feature-title">Private Journal</div>
+                <div class="feature-desc">Write your thoughts freely in a space only you can see</div>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">💸</div>
+                <div class="feature-title">Expense Tracker</div>
+                <div class="feature-desc">Log daily spending by category and see where your money goes</div>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">💰</div>
+                <div class="feature-title">Budget Alerts</div>
+                <div class="feature-desc">Set your monthly allowance and get alerted before you overspend</div>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">📊</div>
+                <div class="feature-title">Weekly Report</div>
+                <div class="feature-desc">See your emotional and financial health side by side every week</div>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 32px; margin-bottom: 10px;">🌙</div>
+                <div class="feature-title">Dark Mode</div>
+                <div class="feature-desc">Easy on the eyes at night — your preference is always remembered</div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <!-- BUILT FOR -->
+    <div class="card" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; max-width: 720px; margin-left: auto; margin-right: auto;">
+        <h2 style="color: white;">Built For Nigerian Students</h2>
+        <p style="font-size: 15px; line-height: 1.8; opacity: 0.92; margin-top: 8px;">
+            MindBudget was designed with the Nigerian university experience in mind —
+            limited allowances, academic pressure, the struggle to find affordable mental health support,
+            and the reality of inconsistent internet access.
+            Everything about this app is built around your actual daily life.
+        </p>
+    </div>
+
+    <!-- CTA -->
+    {% if not current_user.is_authenticated %}
+    <div style="text-align: center; padding: 20px 0 40px;">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 16px; padding: 14px 36px;">
+            Get Started — It is Free
+        </a>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 20px 0 40px;">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary" style="font-size: 16px; padding: 14px 36px;">
+            Go to My Dashboard
+        </a>
+    </div>
+    {% endif %}
+
+    <style>
+    .feature-card {
+        padding: 20px;
+        background: #f8f6ff;
+        border-radius: 14px;
+        text-align: center;
+        transition: background 0.3s;
+    }
+
+    .feature-title {
+        font-weight: 800;
+        font-size: 15px;
+        margin-bottom: 6px;
+        color: #333;
+    }
+
+    .feature-desc {
+        font-size: 13px;
+        color: #888;
+        line-height: 1.5;
+    }
+
+    body.dark .feature-card {
+        background: #0f3460;
+    }
+
+    body.dark .feature-title {
+        color: #ffffff !important;
+    }
+
+    body.dark .feature-desc {
+        color: #cccccc !important;
+    }
+</style>
+
+</div>
+{% endblock %}

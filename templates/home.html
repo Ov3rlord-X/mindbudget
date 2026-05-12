@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}- Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<div style="background: linear-gradient(135deg, #667eea, #764ba2); min-height: 92vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 60px 24px 40px;">
+    <div style="max-width: 560px; width: 100%;">
+
+        <h1 style="color: white; font-size: 56px; font-weight: 900; margin-bottom: 12px; line-height: 1.1;">
+            Mind<span style="color: #ffd700;">Budget</span>
+        </h1>
+
+        <p style="color: rgba(255,255,255,0.88); font-size: 18px; line-height: 1.7; margin: 0 auto 36px; max-width: 420px;">
+            Your personal companion for mental wellness and financial mindfulness.
+            Built for Nigerian university students.
+        </p>
+
+        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px;">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-success" style="font-size: 16px; padding: 14px 36px;">
+                Get Started — Free
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn" style="background: rgba(255,255,255,0.18); color: white; font-size: 16px; padding: 14px 32px; border: 2px solid rgba(255,255,255,0.4);">
+                Log In
+            </a>
+        </div>
+
+        <!-- FEATURE CARDS -->
+        <div style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+
+            <div style="background: rgba(255,255,255,0.14); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; gap: 18px; backdrop-filter: blur(4px);">
+                <div style="font-size: 36px; flex-shrink: 0;">🧠</div>
+                <div>
+                    <div style="color: white; font-weight: 800; font-size: 16px; margin-bottom: 4px;">Daily Mood Tracking</div>
+                    <div style="color: rgba(255,255,255,0.78); font-size: 14px; line-height: 1.5;">Check in with how you feel every day and get a personalised affirmation instantly.</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.14); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; gap: 18px; backdrop-filter: blur(4px);">
+                <div style="font-size: 36px; flex-shrink: 0;">📓</div>
+                <div>
+                    <div style="color: white; font-weight: 800; font-size: 16px; margin-bottom: 4px;">Private Journal</div>
+                    <div style="color: rgba(255,255,255,0.78); font-size: 14px; line-height: 1.5;">Write freely in your own private space. Your entries are yours alone — nobody else sees them.</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.14); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; gap: 18px; backdrop-filter: blur(4px);">
+                <div style="font-size: 36px; flex-shrink: 0;">💰</div>
+                <div>
+                    <div style="color: white; font-weight: 800; font-size: 16px; margin-bottom: 4px;">Expense Tracking & Budget Alerts</div>
+                    <div style="color: rgba(255,255,255,0.78); font-size: 14px; line-height: 1.5;">Log your spending, set a monthly budget, and get alerted before your money runs out.</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- BOTTOM STRIP -->
+<div style="background: white; padding: 28px 24px; text-align: center;">
+    <p style="color: #888; font-size: 14px; margin-bottom: 16px;">
+        Already have an account?
+    </p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 12px 36px;">
+        Log In to MindBudget
+    </a>
+</div>
+
+<style>
+    body.dark .home-bottom {
+        background: #16213e;
+    }
+
+    @media (min-width: 769px) {
+        /* On desktop switch back to 3 column grid */
+        .home-features {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 16px !important;
+        }
+
+        .home-feature-item {
+            flex-direction: column !important;
+            text-align: center !important;
+        }
+    }
+</style>
+
+{% endblock %}

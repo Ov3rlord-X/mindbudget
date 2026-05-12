@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}- Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- WELCOME -->
+    <div style="margin-bottom: 28px;">
+        <h1 style="font-size: 30px; color: #444;">Hello, {{ current_user.fullname.split()[0] }} 👋</h1>
+        <p style="margin-top: 6px;" class="muted-text">Here is how you are doing today.</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ moods|length }}</div>
+            <div class="stat-label">Mood check-ins this week</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">₦{{ "%.0f"|format(total_spent) }}</div>
+            <div class="stat-label">Spent this month</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">
+                {% if budget %}
+                    ₦{{ "%.0f"|format(budget.amount - total_spent) }}
+                {% else %}
+                    --
+                {% endif %}
+            </div>
+            <div class="stat-label">Remaining budget</div>
+        </div>
+    </div>
+
+    <!-- BUDGET ALERT -->
+    {% if budget_alert == 'danger' %}
+        <div class="alert alert-danger">
+            ⚠️ You have exceeded your budget for {{ current_month }}. Try to hold back on spending for the rest of the month.
+        </div>
+    {% elif budget_alert == 'warning' %}
+        <div class="alert alert-warning">
+            🔔 You have used over 75% of your budget for {{ current_month }}. Be mindful of your spending.
+        </div>
+    {% endif %}
+
+    <!-- BUDGET PROGRESS -->
+    {% if budget %}
+    <div class="card">
+        <h2>Budget Progress — {{ current_month }}</h2>
+        <div style="display: flex; justify-content: space-between; font-size: 14px; color: #888; margin-bottom: 8px;">
+            <span>₦{{ "%.0f"|format(total_spent) }} spent</span>
+            <span>₦{{ "%.0f"|format(budget.amount) }} total</span>
+        </div>
+        {% set percent = [(total_spent / budget.amount * 100), 100]|min %}
+        <div class="progress-bar-wrap">
+            <div class="progress-bar {% if percent >= 100 %}progress-red{% elif percent >= 75 %}progress-yellow{% else %}progress-green{% endif %}"
+                 style="width: {{ percent }}%;">
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: #888; margin-bottom: 16px;">You have not set a budget for {{ current_month }} yet.</p>
+        <a href="{{ url_for('finance.set_budget') }}" class="btn btn-primary">Set My Budget</a>
+    </div>
+    {% endif %}
+
+    <!-- TWO COLUMN GRID -->
+    <div class="dashboard-two-col">
+
+        <!-- RECENT MOODS -->
+        <div class="card">
+            <h2>Recent Moods</h2>
+            {% if moods %}
+                {% for m in moods %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                    <span style="font-size: 22px;">
+                        {% if m.mood == 'happy' %}😊
+                        {% elif m.mood == 'okay' %}😐
+                        {% elif m.mood == 'sad' %}😔
+                        {% elif m.mood == 'stressed' %}😰
+                        {% elif m.mood == 'frustrated' %}😤
+                        {% elif m.mood == 'tired' %}😴
+                        {% endif %}
+                        <span style="font-size: 14px; color: #555; margin-left: 8px; text-transform: capitalize;">{{ m.mood }}</span>
+                    </span>
+                    <span style="font-size: 12px; color: #aaa;">{{ m.date_logged.strftime('%d %b') }}</span>
+                </div>
+                {% endfor %}
+                <a href="{{ url_for('mood.log_mood') }}" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 16px;">Log Today's Mood</a>
+            {% else %}
+                <p style="color: #888; margin-bottom: 16px;">No mood logs yet.</p>
+                <a href="{{ url_for('mood.log_mood') }}" class="btn btn-primary">Log Your First Mood</a>
+            {% endif %}
+        </div>
+
+        <!-- RECENT EXPENSES -->
+        <div class="card">
+            <h2>Recent Expenses</h2>
+            {% if expenses %}
+                {% for e in expenses %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                    <div>
+                        <div style="font-size: 15px; font-weight: 600;">{{ e.title }}</div>
+                        <div style="font-size: 12px; color: #aaa;">{{ e.category }}</div>
+                    </div>
+                    <span style="font-weight: 700; color: #e74c3c;">₦{{ "%.0f"|format(e.amount) }}</span>
+                </div>
+                {% endfor %}
+                <a href="{{ url_for('finance.add_expense') }}" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 16px;">Add Expense</a>
+            {% else %}
+                <p style="color: #888; margin-bottom: 16px;">No expenses logged yet.</p>
+                <a href="{{ url_for('finance.add_expense') }}" class="btn btn-primary">Log First Expense</a>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- MOOD CHART -->
+    {% if moods %}
+    <div class="card">
+        <h2>Mood This Week</h2>
+        <div style="position: relative; width: 100%;">
+            <canvas id="moodChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+    const isMobile = window.innerWidth <= 768;
+
+    const moodData = {
+        labels: [{% for m in moods|reverse %}"{{ m.date_logged.strftime('%d %b') }}"{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Mood',
+            data: [{% for m in moods|reverse %}
+                {% if m.mood == 'happy' %}5
+                {% elif m.mood == 'okay' %}4
+                {% elif m.mood == 'tired' %}3
+                {% elif m.mood == 'frustrated' %}2
+                {% elif m.mood == 'sad' %}2
+                {% elif m.mood == 'stressed' %}1
+                {% else %}3{% endif %}
+                {% if not loop.last %},{% endif %}
+            {% endfor %}],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.12)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#667eea',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: isMobile ? 4 : 6,
+            pointHoverRadius: isMobile ? 6 : 8
+        }]
+    };
+
+    const moodChart = new Chart(document.getElementById('moodChart'), {
+        type: 'line',
+        data: moodData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: isMobile ? false : true,
+            aspectRatio: isMobile ? undefined : 3,
+            layout: {
+                padding: { left: 4, right: 4, top: 10, bottom: 4 }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 6,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        font: { size: isMobile ? 10 : 12 },
+                        callback: function(val) {
+                            const labels = ['','Stressed','Low','Tired','Okay','Happy',''];
+                            return labels[val] || '';
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: isMobile ? 10 : 12 },
+                        maxRotation: isMobile ? 45 : 0,
+                        maxTicksLimit: isMobile ? 5 : 10
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const moods = ['','Stressed','Low','Tired','Okay','Happy',''];
+                            return ' ' + (moods[context.raw] || '');
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Set canvas height manually on mobile
+    if (isMobile) {
+        document.getElementById('moodChart').style.height = '200px';
+    }
+
+    // Update chart colors for dark mode
+    function updateChartColors() {
+        const isDark = document.body.classList.contains('dark');
+        const textColor = isDark ? '#cccccc' : '#666666';
+        const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+        moodChart.options.scales.y.ticks.color = textColor;
+        moodChart.options.scales.x.ticks.color = textColor;
+        moodChart.options.scales.y.grid.color   = gridColor;
+        moodChart.update();
+    }
+
+    // Run on load and whenever dark mode is toggled
+    window.addEventListener('load', updateChartColors);
+
+    const originalToggleDark = window.toggleDark;
+    window.toggleDark = function() {
+        originalToggleDark();
+        updateChartColors();
+    };
+</script>
+    {% endif %}
+
+</div>
+{% endblock %}

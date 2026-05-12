@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}- Set Budget{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 480px;">
+    <div class="card">
+        <h2>Set Your Budget</h2>
+        <p style="color: #888; margin-bottom: 24px; font-size: 14px;">
+            Enter your total allowance for <strong>{{ current_month }}</strong>.
+            MindBudget will track your spending and alert you when you are getting close.
+        </p>
+
+        {% if existing_budget %}
+        <div class="alert alert-info">
+            Your current budget for {{ current_month }} is
+            <strong>&#8358;{{ "%.0f"|format(existing_budget.amount) }}</strong>.
+            You can update it below.
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/budget">
+            <div class="form-group">
+                <label>Monthly Allowance (&#8358;)</label>
+                <input type="number" name="amount"
+                       placeholder="e.g. 30000"
+                       value="{{ existing_budget.amount if existing_budget else '' }}"
+                       min="1" step="any" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                {% if existing_budget %}Update Budget{% else %}Set My Budget{% endif %}
+            </button>
+        </form>
+
+        <a href="/dashboard"
+           style="display: block; text-align: center; margin-top: 20px; color: #888; font-size: 14px;">
+            &#8592; Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

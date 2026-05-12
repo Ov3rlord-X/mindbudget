@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}- Mood History{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="font-size: 26px; color: #444; margin-bottom: 24px;">Full Mood History</h1>
+
+    <div class="card">
+        {% if moods %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Mood</th>
+                    <th>Note</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in moods %}
+                <tr>
+                    <td>
+                        {% if m.mood == 'happy' %}😊
+                        {% elif m.mood == 'okay' %}😐
+                        {% elif m.mood == 'sad' %}😔
+                        {% elif m.mood == 'stressed' %}😰
+                        {% elif m.mood == 'frustrated' %}😤
+                        {% elif m.mood == 'tired' %}😴
+                        {% endif %}
+                        <span style="text-transform: capitalize; margin-left: 6px;">{{ m.mood }}</span>
+                    </td>
+                    <td style="color: #888; font-size: 13px;">{{ m.note or '—' }}</td>
+                    <td style="font-size: 13px; color: #aaa;">{{ m.date_logged.strftime('%d %b %Y, %I:%M %p') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p style="color: #888; text-align: center; padding: 40px 0;">No mood history yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindBudget {% block title %}{% endblock %}</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MindBudget">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .navbar .logo span { color: #ffd700; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+
+        .nav-icon-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .nav-icon-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 6px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        /* Mobile drawer */
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            background: linear-gradient(135deg, #5a6fd6, #6a3d96);
+            padding: 8px 16px 16px;
+            gap: 2px;
+        }
+
+        .mobile-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .mobile-menu a:last-child { border-bottom: none; }
+        .mobile-menu a:hover { background: rgba(255,255,255,0.12); }
+
+        .mobile-menu .menu-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.2);
+            margin: 6px 0;
+        }
+
+        .mobile-menu.open { display: flex; }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 1000px;
+            margin: 32px auto;
+            padding: 0 20px;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            transition: background 0.3s;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #444;
+            font-weight: 700;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-block;
+            padding: 11px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-danger  { background: #e74c3c; color: white; }
+        .btn-success { background: #2ecc71; color: white; }
+        .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
+        .btn-sm      { padding: 7px 14px; font-size: 13px; }
+        .btn-block   { width: 100%; text-align: center; display: block; }
+
+        /* ── FORMS ── */
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.2s, background 0.3s;
+            font-family: inherit;
+            background: white;
+            color: #333;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 100px; }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding: 13px 18px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #2ecc71; }
+        .alert-danger  { background: #f8d7da; color: #721c24; border-left: 4px solid #e74c3c; }
+        .alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid #f39c12; }
+        .alert-info    { background: #d1ecf1; color: #0c5460; border-left: 4px solid #3498db; }
+
+        /* ── MOOD BUTTONS ── */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mood-btn {
+            padding: 18px 10px;
+            border: 2px solid #e8e8e8;
+            border-radius: 14px;
+            cursor: pointer;
+            text-align: center;
+            background: white;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .mood-btn:hover    { border-color: #667eea; background: #f8f6ff; }
+        .mood-btn.selected { border-color: #667eea; background: #f0ecff; }
+        .mood-btn .emoji   { font-size: 32px; display: block; margin-bottom: 6px; }
+
+        /* ── TABLE ── */
+        table { width: 100%; border-collapse: collapse; }
+
+        table th {
+            background: #f8f6ff;
+            padding: 11px 14px;
+            text-align: left;
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        table tr:last-child td { border-bottom: none; }
+        table tr:hover { background: #fafafa; }
+
+        /* ── STAT CARDS ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            transition: background 0.3s;
+        }
+
+        .stat-card .stat-icon   { font-size: 24px; margin-bottom: 8px; }
+        .stat-card .stat-number { font-size: 22px; font-weight: 800; color: #667eea; }
+        .stat-card .stat-label  { font-size: 11px; color: #999; margin-top: 4px; line-height: 1.3; }
+
+        /* ── AFFIRMATION BOX ── */
+        .affirmation-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .affirmation-box h3 { font-size: 18px; margin-bottom: 10px; }
+        .affirmation-box p  { font-size: 15px; opacity: 0.9; line-height: 1.6; }
+
+        .affirmation-box .tip {
+            margin-top: 14px;
+            padding: 12px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar-wrap {
+            background: #e8e8e8;
+            border-radius: 10px;
+            height: 12px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar    { height: 100%; border-radius: 10px; transition: width 0.4s; }
+        .progress-green  { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+        .progress-yellow { background: linear-gradient(90deg, #f39c12, #e67e22); }
+        .progress-red    { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+        /* ── EXPENSE CARDS (mobile) ── */
+        .expense-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 10px;
+        }
+
+        .expense-card:last-child { border-bottom: none; }
+        .expense-card .expense-info { flex: 1; min-width: 0; }
+
+        .expense-card .expense-title {
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .expense-card .expense-meta { font-size: 12px; color: #999; margin-top: 3px; }
+        .expense-card .expense-amount { font-weight: 800; color: #e74c3c; font-size: 16px; white-space: nowrap; }
+
+        .expense-card .expense-delete {
+            color: #ddd;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+            padding: 4px 8px;
+        }
+
+        .expense-card .expense-delete:hover { color: #e74c3c; }
+
+        .category-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f0ecff;
+            color: #667eea;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 28px;
+            color: #bbb;
+            font-size: 12px;
+            margin-top: 32px;
+        }
+
+        /* ── COMPACT MODE ── */
+        body.compact .card      { padding: 16px; }
+        body.compact .container { margin: 16px auto; }
+        body.compact .stat-card { padding: 14px; }
+
+        /* ════════════════════════════════
+           DARK MODE
+        ════════════════════════════════ */
+        body.dark { background-color: #1a1a2e; color: #ffffff; }
+
+        body.dark h1, body.dark h2, body.dark h3,
+        body.dark h4, body.dark h5, body.dark h6 { color: #ffffff !important; }
+
+        body.dark p     { color: #dddddd; }
+        body.dark span  { color: inherit; }
+        body.dark label { color: #ffffff !important; }
+        body.dark small { color: #bbbbbb; }
+
+        /* Force all text inside cards to be visible */
+        body.dark .card,
+        body.dark .card * { color: #ffffff; }
+
+        body.dark .card p,
+        body.dark .card small,
+        body.dark .card .stat-label { color: #cccccc !important; }
+
+        body.dark .card .expense-meta { color: #aaaaaa !important; }
+        body.dark .card a { color: #a0b4ff !important; }
+        body.dark .card a:hover { color: #ffffff !important; }
+
+        body.dark .card { background: #16213e; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+
+        body.dark .form-group input,
+        body.dark .form-group textarea,
+        body.dark .form-group select {
+            background: #0f3460;
+            border-color: #2a2a5a;
+            color: #ffffff;
+        }
+
+        body.dark .form-group input::placeholder,
+        body.dark .form-group textarea::placeholder { color: #777; }
+
+        body.dark table th { background: #0f3460; color: #ffffff !important; }
+        body.dark table td { border-bottom-color: #1e1e3e; color: #ffffff !important; }
+        body.dark table tr:hover { background: #1e1e3e; }
+
+        body.dark .stat-card { background: #16213e; }
+        body.dark .stat-card .stat-number { color: #a0b4ff !important; }
+        body.dark .stat-card .stat-label  { color: #cccccc !important; }
+
+        body.dark .mood-btn { background: #16213e; border-color: #2a2a5a; color: #ffffff !important; }
+        body.dark .mood-btn:hover    { background: #0f3460; border-color: #667eea; }
+        body.dark .mood-btn.selected { background: #0f3460; border-color: #667eea; }
+
+        body.dark .progress-bar-wrap { background: #0f3460; }
+
+        body.dark footer       { color: #888 !important; }
+        body.dark footer *     { color: #888 !important; }
+
+        body.dark .btn-outline { border-color: #667eea; color: #a0b4ff !important; }
+        body.dark .category-pill { background: #0f3460; color: #a0b4ff !important; }
+
+        body.dark .expense-card { border-bottom-color: #1e1e3e; }
+        body.dark .expense-card .expense-title  { color: #ffffff !important; }
+        body.dark .expense-card .expense-meta   { color: #aaaaaa !important; }
+        body.dark .expense-card .expense-delete { color: #555 !important; }
+        body.dark .expense-card .expense-delete:hover { color: #e74c3c !important; }
+
+        body.dark .alert-info    { background: #0f3460; color: #ffffff !important; }
+        body.dark .alert-success { background: #1b3a2d; color: #ffffff !important; }
+        body.dark .alert-danger  { background: #3a1b1b; color: #ffffff !important; }
+        body.dark .alert-warning { background: #3a2e1b; color: #ffffff !important; }
+
+        body.dark .navbar a      { color: white !important; }
+        body.dark .mobile-menu a { color: white !important; }
+        body.dark .mobile-menu { background: linear-gradient(135deg, #2a3a8a, #3a1d6a); }
+
+        body.dark .form-group input,
+        body.dark .form-group textarea,
+        body.dark .form-group select {
+            background: #0f3460;
+            border-color: #2a2a5a;
+            color: #e0e0e0;
+        }
+
+        body.dark .form-group input::placeholder,
+        body.dark .form-group textarea::placeholder { color: #666; }
+
+        body.dark table th { background: #0f3460; color: #888; }
+        body.dark table td { border-bottom-color: #1e1e3e; color: #ddd; }
+        body.dark table tr:hover { background: #1e1e3e; }
+
+        body.dark .stat-card { background: #16213e; }
+        body.dark .stat-card .stat-label { color: #777; }
+
+        body.dark .mood-btn { background: #16213e; border-color: #2a2a5a; color: #e0e0e0; }
+        body.dark .mood-btn:hover    { background: #0f3460; border-color: #667eea; }
+        body.dark .mood-btn.selected { background: #0f3460; border-color: #667eea; }
+
+        body.dark .progress-bar-wrap { background: #0f3460; }
+        body.dark footer { color: #444; }
+        body.dark .btn-outline { border-color: #667eea; color: #a0b4ff; }
+        body.dark .category-pill { background: #0f3460; color: #a0b4ff; }
+
+        body.dark .expense-card { border-bottom-color: #1e1e3e; }
+        body.dark .expense-card .expense-delete { color: #333; }
+        body.dark .expense-card .expense-delete:hover { color: #e74c3c; }
+
+        body.dark .alert-info    { background: #0f3460; color: #90caf9; }
+        body.dark .alert-success { background: #1b3a2d; color: #80cbc4; }
+        body.dark .alert-danger  { background: #3a1b1b; color: #ef9a9a; }
+        body.dark .alert-warning { background: #3a2e1b; color: #ffcc80; }
+
+        body.dark .mobile-menu { background: linear-gradient(135deg, #2a3a8a, #3a1d6a); }
+/* Muted text that adjusts in dark mode */
+        .muted-text { color: #888; }
+        body.dark .muted-text { color: #bbbbbb !important; }
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .nav-links  { display: none; }
+            .hamburger  { display: flex; }
+
+            .container  { margin: 16px auto; padding: 0 12px; }
+            .card       { padding: 18px 14px; border-radius: 12px; margin-bottom: 14px; }
+            .card h2    { font-size: 16px; margin-bottom: 14px; }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+
+            .stat-card  { padding: 14px 10px; border-radius: 12px; }
+            .stat-card .stat-number { font-size: 18px; }
+            .stat-card .stat-label  { font-size: 10px; }
+            .stat-card .stat-icon   { font-size: 18px; margin-bottom: 4px; }
+
+            .mood-grid  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .mood-btn   { padding: 14px 8px; font-size: 12px; }
+            .mood-btn .emoji { font-size: 28px; }
+
+            .btn        { padding: 10px 18px; font-size: 14px; }
+
+            .desktop-table  { display: none; }
+            .mobile-expenses { display: block; }
+
+            /* Dashboard specific */
+            .dashboard-two-col {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .affirmation-box { padding: 20px 16px; }
+            .affirmation-box h3 { font-size: 16px; }
+            .affirmation-box p  { font-size: 14px; }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-expenses  { display: none; }
+            .desktop-table    { display: table; }
+            .dashboard-two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="{{ url_for('main.home') }}" class="logo">Mind<span>Budget</span></a>
+
+        <!-- Desktop links -->
+        <div class="nav-links">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('mood.log_mood') }}">Mood</a>
+                <a href="{{ url_for('finance.expenses') }}">Expenses</a>
+                <a href="{{ url_for('finance.set_budget') }}">Budget</a>
+                <a href="{{ url_for('main.journal') }}">Journal</a>
+                <a href="{{ url_for('main.weekly_report') }}">Report</a>
+                <a href="{{ url_for('main.settings') }}" class="nav-icon-btn" title="Settings">⚙️</a>
+                <button class="nav-icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">🌙</button>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+                <button class="nav-icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">🌙</button>
+            {% endif %}
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button class="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Mobile drawer -->
+    <div class="mobile-menu" id="mobileMenu" style="position: sticky; top: 60px; z-index: 999;">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('mood.log_mood') }}">Mood Check-in</a>
+            <a href="{{ url_for('finance.expenses') }}">My Expenses</a>
+            <a href="{{ url_for('finance.set_budget') }}">Set Budget</a>
+            <a href="{{ url_for('main.journal') }}">Journal</a>
+            <a href="{{ url_for('main.weekly_report') }}">Weekly Report</a>
+            <div class="menu-divider"></div>
+            <a href="{{ url_for('main.settings') }}">Settings</a>
+            <a href="{{ url_for('auth.logout') }}">Log Out</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.register') }}">Register</a>
+        {% endif %}
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        MindBudget &copy; 2026 &mdash; Your personal wellness and finance companion
+        &nbsp;&bull;&nbsp; <a href="{{ url_for('main.about') }}" style="color: #aaa;">About</a>
+    </footer>
+
+    <script>
+        // Dark mode
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark');
+        }
+
+        function toggleDark() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            const btn = document.getElementById('darkBtn');
+            if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        window.addEventListener('load', function() {
+            const btn = document.getElementById('darkBtn');
+            if (btn) btn.textContent = localStorage.getItem('darkMode') === 'true' ? '☀️' : '🌙';
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) toggle.checked = localStorage.getItem('darkMode') === 'true';
+            if (localStorage.getItem('compactMode') === 'true') {
+                document.body.classList.add('compact');
+                const ct = document.getElementById('compactToggle');
+                if (ct) ct.checked = true;
+            }
+        });
+
+        // Hamburger
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobileMenu').classList.remove('open');
+            });
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(reg => console.log('MindBudget SW registered'))
+                    .catch(err => console.log('SW error:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

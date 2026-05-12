@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}- Weekly Report{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 26px; font-weight: 900;">Weekly Wellness Report</h1>
+        <p class="muted-text" style="margin-top: 6px; font-size: 14px;">
+            {{ week_start.strftime('%d %b') }} — {{ today.strftime('%d %b %Y') }}
+        </p>
+    </div>
+
+    <!-- WELLNESS SUMMARY -->
+    <div class="card" style="border-left: 6px solid {{ wellness_color }};">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div style="font-size: 48px;">
+                {% if avg_score >= 4.5 %}🌟
+                {% elif avg_score >= 3.5 %}😊
+                {% elif avg_score >= 2.5 %}😐
+                {% elif avg_score >= 1.5 %}😔
+                {% else %}💙
+                {% endif %}
+            </div>
+            <div>
+                <h2 style="font-size: 20px; margin-bottom: 6px; color: {{ wellness_color }};">
+                    {% if avg_score >= 4.5 %}Amazing Week
+                    {% elif avg_score >= 3.5 %}Pretty Good Week
+                    {% elif avg_score >= 2.5 %}Mixed Week
+                    {% elif avg_score >= 1.5 %}Tough Week
+                    {% else %}Really Hard Week
+                    {% endif %}
+                </h2>
+                <p style="font-size: 15px;" class="muted-text">{{ wellness_message }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TWO COLUMN -->
+    <div class="dashboard-two-col">
+
+        <!-- MOOD SUMMARY -->
+        <div class="card">
+            <h2>Mood This Week</h2>
+
+            {% if moods %}
+                <div style="margin-bottom: 20px;">
+                    {% for mood_name, count in mood_counts.items() %}
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="font-size: 22px;">
+                            {% if mood_name == 'happy' %}😊
+                            {% elif mood_name == 'okay' %}😐
+                            {% elif mood_name == 'sad' %}😔
+                            {% elif mood_name == 'stressed' %}😰
+                            {% elif mood_name == 'frustrated' %}😤
+                            {% elif mood_name == 'tired' %}😴
+                            {% endif %}
+                        </span>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-size: 13px; font-weight: 700; text-transform: capitalize;">{{ mood_name }}</span>
+                                <span style="font-size: 12px;" class="muted-text">{{ count }}x</span>
+                            </div>
+                            <div class="progress-bar-wrap" style="height: 8px;">
+                                <div class="progress-bar progress-green"
+                                     style="width: {{ (count / moods|length * 100)|round }}%;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="padding: 14px; background: #f8f6ff; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 13px;" class="muted-text">Most frequent mood</div>
+                    <div style="font-size: 18px; font-weight: 800; margin-top: 4px; text-transform: capitalize; color: #667eea;">
+                        {{ dominant_mood or 'None' }}
+                    </div>
+                    <div style="font-size: 13px; margin-top: 4px;" class="muted-text">
+                        {{ moods|length }} check-in{{ 's' if moods|length != 1 else '' }} this week
+                    </div>
+                </div>
+
+            {% else %}
+                <div style="text-align: center; padding: 40px 0; color: #aaa;">
+                    <div style="font-size: 40px; margin-bottom: 12px;">😶</div>
+                    <p>No mood check-ins this week.</p>
+                    <a href="{{ url_for('mood.log_mood') }}" class="btn btn-primary" style="margin-top: 16px;">Log Your Mood</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- FINANCE SUMMARY -->
+        <div class="card">
+            <h2>Spending This Week</h2>
+
+            {% if expenses %}
+                <div style="text-align: center; margin-bottom: 20px; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+                    <div style="font-size: 32px; font-weight: 900; color: #e74c3c;">
+                        &#8358;{{ "%.0f"|format(total_spent) }}
+                    </div>
+                    <div style="font-size: 13px; margin-top: 4px;" class="muted-text">
+                        spent across {{ expenses|length }} transaction{{ 's' if expenses|length != 1 else '' }}
+                    </div>
+                </div>
+
+                {% if budget %}
+                <div style="margin-bottom: 20px;">
+                    {% set weekly_budget = budget.amount / 4 %}
+                    {% set percent = [(total_spent / weekly_budget * 100), 100]|min %}
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                        <span class="muted-text">Weekly estimate</span>
+                        <span class="muted-text">&#8358;{{ "%.0f"|format(weekly_budget) }}</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar {% if percent >= 100 %}progress-red{% elif percent >= 75 %}progress-yellow{% else %}progress-green{% endif %}"
+                             style="width: {{ percent }}%;"></div>
+                    </div>
+                    <div style="font-size: 12px; margin-top: 6px; text-align: right;" class="muted-text">
+                        {{ "%.0f"|format(percent) }}% of weekly estimate used
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- CATEGORY BREAKDOWN -->
+                {% for cat, total in category_totals.items() %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                    <span class="category-pill">{{ cat }}</span>
+                    <span style="font-weight: 700; color: #e74c3c;">&#8358;{{ "%.0f"|format(total) }}</span>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <div style="text-align: center; padding: 40px 0; color: #aaa;">
+                    <div style="font-size: 40px; margin-bottom: 12px;">💸</div>
+                    <p>No expenses logged this week.</p>
+                    <a href="{{ url_for('finance.add_expense') }}" class="btn btn-primary" style="margin-top: 16px;">Log an Expense</a>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- MIND + MONEY CONNECTION -->
+    {% if moods and expenses %}
+    <div class="card" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+        <h2 style="color: white; margin-bottom: 12px;">Mind & Money This Week</h2>
+        <p style="font-size: 15px; opacity: 0.9; line-height: 1.7;">
+            {% if avg_score < 3 and total_spent > 0 %}
+                Your mood was lower than usual this week and you spent
+                <strong>&#8358;{{ "%.0f"|format(total_spent) }}</strong>.
+                Financial pressure can weigh heavily on your mood.
+                Try reviewing your spending and setting a clearer budget for next week.
+            {% elif avg_score >= 4 and total_spent > 0 %}
+                You had a great emotional week and managed to track your spending too.
+                That kind of awareness is exactly what MindBudget is about. Keep it up.
+            {% else %}
+                You logged {{ moods|length }} mood check-in{{ 's' if moods|length != 1 else '' }}
+                and tracked <strong>&#8358;{{ "%.0f"|format(total_spent) }}</strong> in spending this week.
+                Consistency is the foundation of self-awareness. You are building a good habit.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- ACTIONS -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;">
+        <a href="{{ url_for('mood.log_mood') }}" class="btn btn-primary">Log Today's Mood</a>
+        <a href="{{ url_for('finance.add_expense') }}" class="btn btn-outline">Add Expense</a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+
+</div>
+{% endblock %}

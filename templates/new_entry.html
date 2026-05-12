@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}- New Journal Entry{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 680px;">
+    <div class="card">
+
+        <div style="margin-bottom: 24px;">
+            <h1 style="font-size: 22px; font-weight: 800; color: #444;">New Journal Entry</h1>
+            <p style="color: #999; font-size: 13px; margin-top: 4px;">
+                {{ now.strftime('%A, %d %B %Y') if now else '' }} &mdash; Write freely. This is just for you.
+            </p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title"
+                       placeholder="What is this entry about?"
+                       required
+                       style="font-size: 18px; font-weight: 600; padding: 14px;">
+            </div>
+
+            <div class="form-group">
+                <label>Your Thoughts</label>
+                <textarea name="content"
+                          placeholder="Write whatever is on your mind. How are you feeling? What happened today? What are you thinking about?"
+                          required
+                          style="min-height: 280px; font-size: 15px; line-height: 1.8;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary">Save Entry</button>
+                <a href="{{ url_for('main.journal') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

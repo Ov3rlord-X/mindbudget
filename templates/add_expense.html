@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}- Add Expense{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 480px;">
+    <div class="card">
+        <h2>Log an Expense</h2>
+        <p style="color: #888; margin-bottom: 24px; font-size: 14px;">Record what you spent and keep track of where your money goes.</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>What did you spend on?</label>
+                <input type="text" name="title" placeholder="e.g. Jollof rice, Bus fare, Data" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (₦)</label>
+                <input type="number" name="amount" placeholder="e.g. 500" min="1" step="any" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="">Select a category</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Save Expense</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}- Settings{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+
+    <h1 style="font-size: 26px; color: #444; margin-bottom: 24px;">⚙️ Settings</h1>
+
+    <!-- ACCOUNT INFO -->
+    <div class="card">
+        <h2>👤 Account Information</h2>
+        <div style="margin-bottom: 20px; padding: 16px; background: #f8f6ff; border-radius: 10px;">
+            <div style="font-size: 14px; color: #888; margin-bottom: 4px;">Full Name</div>
+            <div style="font-size: 18px; font-weight: 600;">{{ current_user.fullname }}</div>
+            <div style="font-size: 14px; color: #888; margin-top: 12px; margin-bottom: 4px;">Email Address</div>
+            <div style="font-size: 16px;">{{ current_user.email }}</div>
+            <div style="font-size: 14px; color: #888; margin-top: 12px; margin-bottom: 4px;">Member Since</div>
+            <div style="font-size: 16px;">{{ current_user.date_joined.strftime('%d %B %Y') }}</div>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="action" value="update_name">
+            <div class="form-group">
+                <label>Update Full Name</label>
+                <input type="text" name="fullname" value="{{ current_user.fullname }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Name</button>
+        </form>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div class="card">
+        <h2>🎨 Appearance</h2>
+        <p style="color: #888; font-size: 14px; margin-bottom: 20px;">
+            Choose how MindBudget looks on your device.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px; margin-bottom: 12px;">
+            <div>
+                <div style="font-weight: 600; font-size: 16px;">🌙 Dark Mode</div>
+                <div style="font-size: 13px; color: #888; margin-top: 4px;">Switch between light and dark theme</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="darkModeToggle" onchange="toggleDark()">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+            <div>
+                <div style="font-weight: 600; font-size: 16px;">📱 Compact View</div>
+                <div style="font-size: 13px; color: #888; margin-top: 4px;">Reduce spacing for smaller screens</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="card">
+        <h2>🔒 Change Password</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="change_password">
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="current_password" placeholder="Enter current password" required>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" placeholder="Enter new password" required>
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" name="confirm_password" placeholder="Repeat new password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="card" style="border: 2px solid #ffe0e0;">
+        <h2 style="color: #e74c3c;">⚠️ Account Actions</h2>
+        <p style="color: #888; font-size: 14px; margin-bottom: 20px;">
+            Manage your account session.
+        </p>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Log Out of MindBudget</a>
+    </div>
+
+</div>
+
+<style>
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: #ccc;
+        border-radius: 28px;
+        transition: 0.3s;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    input:checked + .toggle-slider { background: #667eea; }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+    body.dark .toggle-switch .toggle-slider { background: #444; }
+    body.dark div[style*="background: #f8f6ff"] {
+        background: #0f3460 !important;
+    }
+</style>
+
+<script>
+    // Set toggle states on load
+    window.addEventListener('load', function() {
+        document.getElementById('darkModeToggle').checked =
+            localStorage.getItem('darkMode') === 'true';
+        document.getElementById('compactToggle').checked =
+            localStorage.getItem('compactMode') === 'true';
+    });
+
+    function toggleCompact() {
+        document.body.classList.toggle('compact');
+        const isCompact = document.body.classList.contains('compact');
+        localStorage.setItem('compactMode', isCompact);
+    }
+
+    if (localStorage.getItem('compactMode') === 'true') {
+        document.body.classList.add('compact');
+    }
+</script>
+{% endblock %}

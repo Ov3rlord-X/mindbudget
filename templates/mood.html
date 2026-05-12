@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}- Mood Check-in{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 620px;">
+
+    <!-- AFFIRMATION (shows after logging) -->
+    {% if affirmation %}
+    <div class="affirmation-box">
+        <h3>{{ affirmation.message }}</h3>
+        <div class="tip">💡 {{ affirmation.tip }}</div>
+        {% if affirmation.financial_tip is defined %}
+        <div class="tip" style="margin-top: 10px;">💰 {{ affirmation.financial_tip }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- MOOD FORM -->
+    <div class="card">
+        <h2>How are you feeling today?</h2>
+        <p style="color: #888; margin-bottom: 24px; font-size: 14px;">Select your mood and the app will respond with something just for you.</p>
+
+        <form method="POST" id="moodForm">
+
+            <!-- MOOD SELECTION -->
+            <div class="mood-grid">
+                <div class="mood-btn" onclick="selectMood('happy', this)">
+                    <span class="emoji">😊</span> Happy
+                </div>
+                <div class="mood-btn" onclick="selectMood('okay', this)">
+                    <span class="emoji">😐</span> Okay
+                </div>
+                <div class="mood-btn" onclick="selectMood('sad', this)">
+                    <span class="emoji">😔</span> Sad
+                </div>
+                <div class="mood-btn" onclick="selectMood('stressed', this)">
+                    <span class="emoji">😰</span> Stressed
+                </div>
+                <div class="mood-btn" onclick="selectMood('frustrated', this)">
+                    <span class="emoji">😤</span> Frustrated
+                </div>
+                <div class="mood-btn" onclick="selectMood('tired', this)">
+                    <span class="emoji">😴</span> Tired
+                </div>
+            </div>
+
+            <input type="hidden" name="mood" id="moodInput" required>
+
+            <!-- OPTIONAL NOTE -->
+            <div class="form-group">
+                <label>Want to add a note? (optional)</label>
+                <textarea name="note" placeholder="What is on your mind today..."></textarea>
+            </div>
+
+            <!-- FINANCIAL STRESS CHECKBOX -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px; padding: 16px; background: #f8f6ff; border-radius: 10px;">
+                <input type="checkbox" name="financial_stress" id="financialStress" style="width: 18px; height: 18px;">
+                <label for="financialStress" style="font-size: 14px; color: #555; cursor: pointer;">
+                    💰 Is financial pressure contributing to how I feel today?
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Log My Mood</button>
+        </form>
+    </div>
+
+    <!-- MOOD HISTORY -->
+    {% if mood_history %}
+    <div class="card">
+        <h2>Recent Check-ins</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mood</th>
+                    <th>Note</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mood_history %}
+                <tr>
+                    <td>
+                        {% if m.mood == 'happy' %}😊
+                        {% elif m.mood == 'okay' %}😐
+                        {% elif m.mood == 'sad' %}😔
+                        {% elif m.mood == 'stressed' %}😰
+                        {% elif m.mood == 'frustrated' %}😤
+                        {% elif m.mood == 'tired' %}😴
+                        {% endif %}
+                        <span style="text-transform: capitalize; margin-left: 6px;">{{ m.mood }}</span>
+                    </td>
+                    <td style="color: #888; font-size: 13px;">{{ m.note or '—' }}</td>
+                    <td style="font-size: 13px; color: #aaa;">{{ m.date_logged.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    function selectMood(mood, el) {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('moodInput').value = mood;
+    }
+</script>
+{% endblock %}

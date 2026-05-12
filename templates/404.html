@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}- Page Not Found{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; text-align: center; padding: 80px 20px;">
+
+    <div style="font-size: 80px; margin-bottom: 20px;">🔍</div>
+
+    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 12px;">Page Not Found</h1>
+
+    <p style="font-size: 16px; line-height: 1.7; margin-bottom: 32px;" class="muted-text">
+        The page you are looking for does not exist or may have been moved.
+        Let us get you back on track.
+    </p>
+
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+        <a href="{{ url_for('main.home') }}" class="btn btn-outline">Go Home</a>
+    </div>
+
+</div>
+{% endblock %}

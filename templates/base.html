@@ -582,6 +582,10 @@
                 <a href="{{ url_for('finance.set_budget') }}">Budget</a>
                 <a href="{{ url_for('main.journal') }}">Journal</a>
                 <a href="{{ url_for('main.weekly_report') }}">Report</a>
+                <a href="{{ url_for('main.notifications') }}" class="nav-icon-btn" title="Notifications" id="notifBtn" style="position: relative;">
+                    🔔
+                    <span id="notifBadge" style="display: none; position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center;">0</span>
+                </a>
                 <a href="{{ url_for('main.settings') }}" class="nav-icon-btn" title="Settings">⚙️</a>
                 <button class="nav-icon-btn" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">🌙</button>
             {% else %}
@@ -607,6 +611,7 @@
             <a href="{{ url_for('main.journal') }}">Journal</a>
             <a href="{{ url_for('main.weekly_report') }}">Weekly Report</a>
             <div class="menu-divider"></div>
+            <a href="{{ url_for('main.notifications') }}">Notifications</a>
             <a href="{{ url_for('main.settings') }}">Settings</a>
             <a href="{{ url_for('auth.logout') }}">Log Out</a>
         {% else %}
@@ -678,6 +683,31 @@
                     .catch(err => console.log('SW error:', err));
             });
         }
+    </script>
+    <script>
+        // Check notification count every 5 minutes
+        function checkNotifications() {
+            fetch('/notifications/count')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('notifBadge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // Only run if user is logged in
+        {% if current_user.is_authenticated %}
+        checkNotifications();
+        setInterval(checkNotifications, 300000); // every 5 minutes
+        {% endif %}
     </script>
 
 </body>

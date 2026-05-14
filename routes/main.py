@@ -1,3 +1,4 @@
+from models import MoodLog, Expense, Budget, Journal, Notification
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import MoodLog, Expense, Budget, Journal
@@ -6,15 +7,130 @@ from datetime import datetime, timedelta
 
 main = Blueprint('main', __name__)
 
+def generate_notifications(user_id):
+    today = datetime.utcnow()
+
+    # Check mood - has user logged today
+    todays_mood = MoodLog.query.filter_by(user_id=user_id)\
+        .filter(MoodLog.date_logged >= today.replace(hour=0, minute=0, second=0))\
+        .first()
+
+    if not todays_mood:
+        existing = Notification.query.filter_by(
+            user_id=user_id, type='mood', is_read=False
+        ).first()
+        if not existing:
+            notif = Notification(
+                user_id=user_id,
+                message="You have not checked in your mood today. How are you feeling?",
+                type='mood'
+            )
+            db.session.add(notif)
+
+    # Check journal - has user written this week
+    week_ago = today - timedelta(days=7)
+    recent_journal = Journal.query.filter_by(user_id=user_id)\
+        .filter(Journal.date_written >= week_ago).first()
+
+    if not recent_journal:
+        existing = Notification.query.filter_by(
+            user_id=user_id, type='journal', is_read=False
+        ).first()
+        if not existing:
+            notif = Notification(
+                user_id=user_id,
+                message="You have not written in your journal this week. Take a moment to reflect.",
+                type='journal'
+            )
+            db.session.add(notif)
+
+    # Check budget
+    current_month = today.strftime('%B %Y')
+    budget = Budget.query.filter_by(
+        user_id=user_id, month=current_month
+    ).first()
+
+    if not budget:
+        existing = Notification.query.filter_by(
+            user_id=user_id, type='budget', is_read=False
+        ).first()
+        if not existing:
+            notif = Notification(
+                user_id=user_id,
+                message="You have not set a budget for " + current_month + " yet.",
+                type='budget'
+            )
+            db.session.add(notif)
+    else:
+        month_start = today.replace(day=1, hour=0, minute=0, second=0)
+        monthly_expenses = Expense.query.filter_by(user_id=user_id)\
+            .filter(Expense.date_spent >= month_start).all()
+        total_spent = sum(e.amount for e in monthly_expenses)
+        percent = (total_spent / budget.amount) * 100
+
+        if percent >= 75:
+            existing = Notification.query.filter_by(
+                user_id=user_id, type='budget_alert', is_read=False
+            ).first()
+            if not existing:
+                notif = Notification(
+                    user_id=user_id,
+                    message=f"You have used {percent:.0f}% of your budget this month. Spend carefully.",
+                    type='budget_alert'
+                )
+                db.session.add(notif)
+
+    db.session.commit()
 
 @main.route('/')
 def home():
     return render_template('home.html')
 
 
+@main.route('/notifications')
+@login_required
+def notifications():
+    notifs = Notification.query.filter_by(user_id=current_user.id)\
+        .order_by(Notification.date_created.desc()).limit(20).all()
+    return render_template('notifications.html', notifications=notifs)
+
+
+@main.route('/notifications/read/<int:notif_id>')
+@login_required
+def mark_read(notif_id):
+    notif = Notification.query.get_or_404(notif_id)
+    if notif.user_id == current_user.id:
+        notif.is_read = True
+        db.session.commit()
+    return redirect(url_for('main.notifications'))
+
+
+@main.route('/notifications/read-all')
+@login_required
+def mark_all_read():
+    Notification.query.filter_by(
+        user_id=current_user.id, is_read=False
+    ).update({'is_read': True})
+    db.session.commit()
+    flash('All notifications marked as read.', 'success')
+    return redirect(url_for('main.notifications'))
+
+
+@main.route('/notifications/count')
+@login_required
+def notification_count():
+    from flask import jsonify
+    count = Notification.query.filter_by(
+        user_id=current_user.id, is_read=False
+    ).count()
+    return jsonify({'count': count})
+
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
+    # Generate notifications for this user
+    generate_notifications(current_user.id)
     moods = MoodLog.query.filter_by(user_id=current_user.id)\
         .order_by(MoodLog.date_logged.desc()).limit(7).all()
 

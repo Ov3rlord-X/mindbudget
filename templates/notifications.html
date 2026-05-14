@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}- Notifications{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 640px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 900;">Notifications</h1>
+            <p class="muted-text" style="font-size: 13px; margin-top: 4px;">Stay on top of your wellness and finances</p>
+        </div>
+        {% if notifications %}
+        <a href="{{ url_for('main.mark_all_read') }}" class="btn btn-outline btn-sm">Mark all as read</a>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+        {% for notif in notifications %}
+        <div class="card" style="padding: 18px 20px; margin-bottom: 12px; border-left: 4px solid
+            {% if notif.type == 'mood' %}#667eea
+            {% elif notif.type == 'journal' %}#2ecc71
+            {% elif notif.type == 'budget' or notif.type == 'budget_alert' %}#f39c12
+            {% else %}#667eea{% endif %};
+            opacity: {{ '1' if not notif.is_read else '0.6' }};">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
+                    <div style="font-size: 24px; flex-shrink: 0;">
+                        {% if notif.type == 'mood' %}😊
+                        {% elif notif.type == 'journal' %}📓
+                        {% elif notif.type == 'budget' %}💰
+                        {% elif notif.type == 'budget_alert' %}⚠️
+                        {% else %}🔔{% endif %}
+                    </div>
+                    <div>
+                        <p style="font-size: 15px; font-weight: {% if not notif.is_read %}700{% else %}400{% endif %}; margin-bottom: 6px;">
+                            {{ notif.message }}
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span class="muted-text" style="font-size: 12px;">
+                                {{ notif.date_created.strftime('%d %b %Y, %I:%M %p') }}
+                            </span>
+                            {% if not notif.is_read %}
+                            <span style="background: #667eea; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;">NEW</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+                    {% if notif.type == 'mood' %}
+                    <a href="{{ url_for('mood.log_mood') }}" class="btn btn-primary btn-sm">Log Mood</a>
+                    {% elif notif.type == 'journal' %}
+                    <a href="{{ url_for('main.new_entry') }}" class="btn btn-primary btn-sm">Write</a>
+                    {% elif notif.type == 'budget' %}
+                    <a href="{{ url_for('finance.set_budget') }}" class="btn btn-primary btn-sm">Set Budget</a>
+                    {% elif notif.type == 'budget_alert' %}
+                    <a href="{{ url_for('finance.expenses') }}" class="btn btn-primary btn-sm">View Expenses</a>
+                    {% endif %}
+
+                    {% if not notif.is_read %}
+                    <a href="{{ url_for('main.mark_read', notif_id=notif.id) }}"
+                       style="font-size: 12px; color: #aaa; text-decoration: none; text-align: center;">
+                        Dismiss
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+    <div class="card" style="text-align: center; padding: 60px 20px;">
+        <div style="font-size: 56px; margin-bottom: 16px;">🔔</div>
+        <h2 style="font-size: 20px; margin-bottom: 10px;">You are all caught up</h2>
+        <p class="muted-text" style="font-size: 14px;">No notifications right now. Keep tracking your mood and expenses.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

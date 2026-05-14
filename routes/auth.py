@@ -12,13 +12,17 @@ def register():
         return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
-        fullname = request.form.get('fullname')
-        email = request.form.get('email')
+        fullname = request.form.get('fullname').strip()
+        email = request.form.get('email').strip().lower()
         password = request.form.get('password')
         confirm = request.form.get('confirm')
 
         if password != confirm:
             flash('Passwords do not match. Please try again.', 'danger')
+            return redirect(url_for('auth.register'))
+
+        if len(password) < 6:
+            flash('Password must be at least 6 characters.', 'danger')
             return redirect(url_for('auth.register'))
 
         existing_user = User.query.filter_by(email=email).first()
@@ -43,7 +47,7 @@ def login():
         return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = request.form.get('email').strip().lower()
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()

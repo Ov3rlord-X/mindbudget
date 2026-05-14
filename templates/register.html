@@ -5,7 +5,9 @@
 <div class="container" style="max-width: 480px;">
     <div class="card">
         <h2 style="text-align: center; margin-bottom: 8px;">Create Your Account</h2>
-        <p style="text-align: center; color: #888; margin-bottom: 28px; font-size: 14px;">Join MindBudget and take control of your wellbeing</p>
+        <p style="text-align: center; margin-bottom: 28px; font-size: 14px;" class="muted-text">
+            Join MindBudget and take control of your wellbeing
+        </p>
 
         <form method="POST">
             <div class="form-group">
@@ -18,18 +20,69 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" placeholder="Create a password" required>
+                <div class="password-wrap">
+                    <input type="password" name="password" id="password" placeholder="Create a password (min 6 characters)" required>
+                    <button type="button" class="eye-btn" onclick="togglePassword('password', 'eye1')">
+                        <span id="eye1">👁</span>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm" placeholder="Repeat your password" required>
+                <div class="password-wrap">
+                    <input type="password" name="confirm" id="confirm" placeholder="Repeat your password" required>
+                    <button type="button" class="eye-btn" onclick="togglePassword('confirm', 'eye2')">
+                        <span id="eye2">👁</span>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
         </form>
 
-        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #888;">
+        <p style="text-align: center; margin-top: 20px; font-size: 14px;" class="muted-text">
             Already have an account? <a href="{{ url_for('auth.login') }}" style="color: #667eea;">Log in here</a>
         </p>
     </div>
 </div>
+
+<style>
+    .password-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-wrap input {
+        padding-right: 48px;
+    }
+
+    .eye-btn {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px;
+        line-height: 1;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .eye-btn:hover { opacity: 1; }
+</style>
+
+<script>
+    function togglePassword(fieldId, eyeId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(eyeId);
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.textContent = '🙈';
+        } else {
+            field.type = 'password';
+            eye.textContent = '👁';
+        }
+    }
+</script>
 {% endblock %}

@@ -23,6 +23,7 @@
             background-color: #f0f4f8;
             color: #333;
             transition: background 0.3s, color 0.3s;
+            padding-top: 60px;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -39,8 +40,10 @@
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             height: 60px;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
         }
 
@@ -112,14 +115,24 @@
         }
 
         /* Mobile drawer */
-        .mobile-menu {
+       .mobile-menu {
             display: none;
             flex-direction: column;
             background: linear-gradient(135deg, #5a6fd6, #6a3d96);
             padding: 8px 16px 16px;
             gap: 2px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
         }
 
+        .mobile-menu.open { display: flex; }
+        
         .mobile-menu a {
             color: white;
             text-decoration: none;
@@ -602,7 +615,7 @@
     </nav>
 
     <!-- Mobile drawer -->
-    <div class="mobile-menu" id="mobileMenu" style="position: sticky; top: 60px; z-index: 999;">
+    <div class="mobile-menu" id="mobileMenu">
         {% if current_user.is_authenticated %}
             <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
             <a href="{{ url_for('mood.log_mood') }}">Mood Check-in</a>
@@ -664,15 +677,36 @@
             }
         });
 
-        // Hamburger
+        // Hamburger menu
+        const mobileMenu = document.getElementById('mobileMenu');
+        const hamburgerBtn = document.querySelector('.hamburger');
+
         function toggleMenu() {
-            document.getElementById('mobileMenu').classList.toggle('open');
+            mobileMenu.classList.toggle('open');
         }
 
+        // Close when clicking a link inside menu
         document.querySelectorAll('.mobile-menu a').forEach(link => {
             link.addEventListener('click', () => {
-                document.getElementById('mobileMenu').classList.remove('open');
+                mobileMenu.classList.remove('open');
             });
+        });
+
+        // Close when tapping anywhere outside the menu or hamburger
+        document.addEventListener('touchstart', function(e) {
+            if (mobileMenu.classList.contains('open')) {
+                if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    mobileMenu.classList.remove('open');
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (mobileMenu.classList.contains('open')) {
+                if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    mobileMenu.classList.remove('open');
+                }
+            }
         });
     </script>
     <script>

@@ -7,6 +7,13 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    # Fix for Render's PostgreSQL URL format
+    import os
+    database_url = os.environ.get('DATABASE_URL', '')
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        os.environ['DATABASE_URL'] = database_url
+
     db.init_app(app)
     login_manager.init_app(app)
     bcrypt.init_app(app)
@@ -31,8 +38,8 @@ def create_app():
         app.register_blueprint(finance)
 
         db.create_all()
+        print("Database tables created successfully")
 
-        # 404 handler
         @app.errorhandler(404)
         def page_not_found(e):
             return render_template('404.html'), 404

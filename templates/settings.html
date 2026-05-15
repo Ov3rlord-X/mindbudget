@@ -4,104 +4,249 @@
 {% block content %}
 <div class="container" style="max-width: 600px;">
 
-    <h1 style="font-size: 26px; color: #444; margin-bottom: 24px;">⚙️ Settings</h1>
+    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">Settings</h1>
 
-    <!-- ACCOUNT INFO -->
-    <div class="card">
-        <h2>👤 Account Information</h2>
-        <div style="margin-bottom: 20px; padding: 16px; background: #f8f6ff; border-radius: 10px;">
-            <div style="font-size: 14px; color: #888; margin-bottom: 4px;">Full Name</div>
-            <div style="font-size: 18px; font-weight: 600;">{{ current_user.fullname }}</div>
-            <div style="font-size: 14px; color: #888; margin-top: 12px; margin-bottom: 4px;">Email Address</div>
-            <div style="font-size: 16px;">{{ current_user.email }}</div>
-            <div style="font-size: 14px; color: #888; margin-top: 12px; margin-bottom: 4px;">Member Since</div>
-            <div style="font-size: 16px;">{{ current_user.date_joined.strftime('%d %B %Y') }}</div>
-        </div>
-
-        <form method="POST">
-            <input type="hidden" name="action" value="update_name">
-            <div class="form-group">
-                <label>Update Full Name</label>
-                <input type="text" name="fullname" value="{{ current_user.fullname }}" required>
+    <!-- ACCOUNT INFORMATION -->
+    <div class="accordion-card">
+        <div class="accordion-header" onclick="toggleAccordion('account')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">👤</span>
+                <span style="font-weight: 700; font-size: 16px;">Account Information</span>
             </div>
-            <button type="submit" class="btn btn-primary">Save Name</button>
-        </form>
+            <span class="accordion-arrow" id="arrow-account">▼</span>
+        </div>
+        <div class="accordion-body" id="body-account">
+            <div style="padding: 20px;">
+                <div style="padding: 16px; background: #f8f6ff; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="font-size: 13px; color: #888; margin-bottom: 4px;">Full Name</div>
+                    <div style="font-size: 17px; font-weight: 700;">{{ current_user.fullname }}</div>
+                    <div style="font-size: 13px; color: #888; margin-top: 12px; margin-bottom: 4px;">Email Address</div>
+                    <div style="font-size: 15px;">{{ current_user.email }}</div>
+                    <div style="font-size: 13px; color: #888; margin-top: 12px; margin-bottom: 4px;">Member Since</div>
+                    <div style="font-size: 15px;">{{ current_user.date_joined.strftime('%d %B %Y') }}</div>
+                </div>
+
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_name">
+                    <div class="form-group">
+                        <label>Update Full Name</label>
+                        <input type="text" name="fullname" value="{{ current_user.fullname }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Name</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- APPEARANCE -->
-    <div class="card">
-        <h2>🎨 Appearance</h2>
-        <p style="color: #888; font-size: 14px; margin-bottom: 20px;">
-            Choose how MindBudget looks on your device.
-        </p>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px; margin-bottom: 12px;">
-            <div>
-                <div style="font-weight: 600; font-size: 16px;">🌙 Dark Mode</div>
-                <div style="font-size: 13px; color: #888; margin-top: 4px;">Switch between light and dark theme</div>
+    <div class="accordion-card">
+        <div class="accordion-header" onclick="toggleAccordion('appearance')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🎨</span>
+                <span style="font-weight: 700; font-size: 16px;">Appearance</span>
             </div>
-            <label class="toggle-switch">
-                <input type="checkbox" id="darkModeToggle" onchange="toggleDark()">
-                <span class="toggle-slider"></span>
-            </label>
+            <span class="accordion-arrow" id="arrow-appearance">▼</span>
         </div>
+        <div class="accordion-body" id="body-appearance">
+            <div style="padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px; margin-bottom: 12px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">🌙 Dark Mode</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 4px;">Switch between light and dark theme</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDark()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
-            <div>
-                <div style="font-weight: 600; font-size: 16px;">📱 Compact View</div>
-                <div style="font-size: 13px; color: #888; margin-top: 4px;">Reduce spacing for smaller screens</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">📱 Compact View</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 4px;">Reduce spacing for smaller screens</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
-            <label class="toggle-switch">
-                <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
-                <span class="toggle-slider"></span>
-            </label>
         </div>
     </div>
 
     <!-- CHANGE PASSWORD -->
-    <div class="card">
-        <h2>🔒 Change Password</h2>
-        <form method="POST">
-            <input type="hidden" name="action" value="change_password">
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" name="current_password" placeholder="Enter current password" required>
+    <div class="accordion-card">
+        <div class="accordion-header" onclick="toggleAccordion('password')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🔒</span>
+                <span style="font-weight: 700; font-size: 16px;">Change Password</span>
             </div>
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" name="new_password" placeholder="Enter new password" required>
+            <span class="accordion-arrow" id="arrow-password">▼</span>
+        </div>
+        <div class="accordion-body" id="body-password">
+            <div style="padding: 20px;">
+                <form method="POST">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <div class="password-wrap">
+                            <input type="password" name="current_password" id="cur_pass" placeholder="Enter current password" required>
+                            <button type="button" class="eye-btn" onclick="togglePw('cur_pass','eye1')"><span id="eye1">👁</span></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="password-wrap">
+                            <input type="password" name="new_password" id="new_pass" placeholder="Enter new password" required>
+                            <button type="button" class="eye-btn" onclick="togglePw('new_pass','eye2')"><span id="eye2">👁</span></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <div class="password-wrap">
+                            <input type="password" name="confirm_password" id="conf_pass" placeholder="Repeat new password" required>
+                            <button type="button" class="eye-btn" onclick="togglePw('conf_pass','eye3')"><span id="eye3">👁</span></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" name="confirm_password" placeholder="Repeat new password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Change Password</button>
-        </form>
+        </div>
     </div>
 
-    <!-- DANGER ZONE -->
-    <div class="card" style="border: 2px solid #ffe0e0;">
-        <h2 style="color: #e74c3c;">⚠️ Account Actions</h2>
-        <p style="color: #888; font-size: 14px; margin-bottom: 20px;">
-            Manage your account session.
-        </p>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Log Out of MindBudget</a>
+    <!-- NOTIFICATIONS -->
+    <div class="accordion-card">
+        <div class="accordion-header" onclick="toggleAccordion('notifications')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🔔</span>
+                <span style="font-weight: 700; font-size: 16px;">Notification Preferences</span>
+            </div>
+            <span class="accordion-arrow" id="arrow-notifications">▼</span>
+        </div>
+        <div class="accordion-body" id="body-notifications">
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">😊 Daily Mood Reminder</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 3px;">Get reminded to log your mood each day</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">📓 Weekly Journal Reminder</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 3px;">Get reminded to write in your journal weekly</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8f6ff; border-radius: 12px;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">💰 Budget Alerts</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 3px;">Get alerted when close to your budget limit</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <a href="{{ url_for('main.notifications') }}" class="btn btn-outline" style="text-align: center;">
+                    View All Notifications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOG OUT -->
+    <div class="accordion-card" style="border: 2px solid #ffe0e0;">
+        <div class="accordion-header" onclick="toggleAccordion('danger')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🚪</span>
+                <span style="font-weight: 700; font-size: 16px; color: #e74c3c;">Account Actions</span>
+            </div>
+            <span class="accordion-arrow" id="arrow-danger">▼</span>
+        </div>
+        <div class="accordion-body" id="body-danger">
+            <div style="padding: 20px;">
+                <p style="font-size: 14px; color: #888; margin-bottom: 16px;">Manage your account session.</p>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Log Out of MindBudget</a>
+            </div>
+        </div>
     </div>
 
 </div>
 
 <style>
-    /* Toggle Switch */
+    .accordion-card {
+        background: white;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        transition: background 0.3s;
+    }
+
+    .accordion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        cursor: pointer;
+        transition: background 0.2s;
+        user-select: none;
+    }
+
+    .accordion-header:hover { background: #f8f6ff; }
+
+    .accordion-arrow {
+        font-size: 13px;
+        color: #aaa;
+        transition: transform 0.3s;
+    }
+
+    .accordion-arrow.open { transform: rotate(180deg); }
+
+    .accordion-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+        border-top: 1px solid transparent;
+    }
+
+    .accordion-body.open {
+        max-height: 800px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    /* Password toggle */
+    .password-wrap { position: relative; display: flex; align-items: center; }
+    .password-wrap input { padding-right: 48px; }
+    .eye-btn {
+        position: absolute; right: 12px;
+        background: none; border: none;
+        cursor: pointer; font-size: 18px;
+        padding: 4px; opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .eye-btn:hover { opacity: 1; }
+
+    /* Toggle switch */
     .toggle-switch {
         position: relative;
         display: inline-block;
-        width: 52px;
-        height: 28px;
+        width: 52px; height: 28px;
         flex-shrink: 0;
     }
-
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-
     .toggle-slider {
         position: absolute;
         cursor: pointer;
@@ -110,36 +255,39 @@
         border-radius: 28px;
         transition: 0.3s;
     }
-
     .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 20px;
-        width: 20px;
-        left: 4px;
-        bottom: 4px;
-        background: white;
-        border-radius: 50%;
+        position: absolute; content: "";
+        height: 20px; width: 20px;
+        left: 4px; bottom: 4px;
+        background: white; border-radius: 50%;
         transition: 0.3s;
     }
-
     input:checked + .toggle-slider { background: #667eea; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
 
-    body.dark .toggle-switch .toggle-slider { background: #444; }
-    body.dark div[style*="background: #f8f6ff"] {
-        background: #0f3460 !important;
-    }
+    /* Dark mode overrides */
+    body.dark .accordion-card { background: #16213e; }
+    body.dark .accordion-header:hover { background: #0f3460; }
+    body.dark .accordion-body { border-top-color: #1e1e3e; }
+    body.dark .accordion-body.open { border-top-color: #1e1e3e; }
+    body.dark .accordion-arrow { color: #666; }
+    body.dark div[style*="background: #f8f6ff"] { background: #0f3460 !important; }
 </style>
 
 <script>
-    // Set toggle states on load
-    window.addEventListener('load', function() {
-        document.getElementById('darkModeToggle').checked =
-            localStorage.getItem('darkMode') === 'true';
-        document.getElementById('compactToggle').checked =
-            localStorage.getItem('compactMode') === 'true';
-    });
+    function toggleAccordion(id) {
+        const body = document.getElementById('body-' + id);
+        const arrow = document.getElementById('arrow-' + id);
+        body.classList.toggle('open');
+        arrow.classList.toggle('open');
+    }
+
+    function togglePw(fieldId, eyeId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(eyeId);
+        field.type = field.type === 'password' ? 'text' : 'password';
+        eye.textContent = field.type === 'password' ? '👁' : '🙈';
+    }
 
     function toggleCompact() {
         document.body.classList.toggle('compact');
@@ -147,8 +295,11 @@
         localStorage.setItem('compactMode', isCompact);
     }
 
-    if (localStorage.getItem('compactMode') === 'true') {
-        document.body.classList.add('compact');
-    }
+    window.addEventListener('load', function() {
+        const toggle = document.getElementById('darkModeToggle');
+        if (toggle) toggle.checked = localStorage.getItem('darkMode') === 'true';
+        const ct = document.getElementById('compactToggle');
+        if (ct) ct.checked = localStorage.getItem('compactMode') === 'true';
+    });
 </script>
 {% endblock %}
